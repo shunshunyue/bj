@@ -23,6 +23,11 @@ export class AuthService {
   findAll() {
     return `This action returns all auth`;
   }
+
+  currentUser(request: { user: any }) {
+    return request.user;
+    // return `This action returns all auth`;
+  }
   async login(loginDto: LoginDto) {
     const findUser = await this.user.findOne({
       where: { username: loginDto.username }
@@ -34,7 +39,10 @@ export class AuthService {
     const compareRes: boolean = bcryptjs.compareSync(loginDto.password, findUser.password)
     // 密码不正确
     if (!compareRes) return new BadRequestException("密码不正确")
-    const payload = { username: findUser.username }
+    const payload = {
+      name: findUser.username,
+      userid: findUser.id
+    }
 
     return {
       access_token: this.JwtService.sign(payload),

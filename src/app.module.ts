@@ -6,7 +6,7 @@ import { AuthModule } from './auth/auth.module';
 @Module({
   imports: [TypeOrmModule.forRoot({
     type: 'mysql', // 数据库类型
-    host: '192.168.1.17', // 主机名
+    host: '192.168.0.162', // 主机名
     port: 3306, // 端口
     username: 'root', // 用户名
     password: 'Yss123123', // 密码

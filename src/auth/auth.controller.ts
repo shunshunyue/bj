@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
 import { LoginDto } from './dto/login.dto';
+import { Public } from './dto/pubg';
 
 @Controller('user')
 export class AuthController {
@@ -12,13 +13,19 @@ export class AuthController {
   create(@Body() createAuthDto: CreateAuthDto) {
     return this.authService.create(createAuthDto);
   }
+  @Public()
   @Post("/login")
   logIn(@Body() loginDto: LoginDto) {
     return this.authService.login(loginDto);
   }
+  @Public()
   @Post("/register")
   register(@Body() loginDto: LoginDto) {
     return this.authService.signup(loginDto);
+  }
+  @Get("/currentUser")
+  currentUser(@Req() request: any) {
+    return this.authService.currentUser(request);
   }
   @Get()
   findAll() {
