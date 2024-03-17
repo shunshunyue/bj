@@ -37,7 +37,7 @@ export class AuthController {
     return this.authService.findOne(+id);
   }
 
-  @Patch(':id')
+  @Post('/update/:id')
   update(@Param('id') id: string, @Body() updateAuthDto: UpdateAuthDto) {
     return this.authService.update(+id, updateAuthDto);
   }

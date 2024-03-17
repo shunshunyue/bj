@@ -16,12 +16,22 @@ export class AuthService {
   ) { }
 
 
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
+  async create(createAuthDto: CreateAuthDto) {
+    const findUser = await this.user.findOne({
+      where: { username: createAuthDto.username }
+    })
+    if (findUser && findUser.username === createAuthDto.username) return "用户已存在"
+    // 对密码进行加密处理
+    createAuthDto.password = bcryptjs.hashSync(createAuthDto.password, 10)
+    await this.user.save(createAuthDto)
+
+    return '新增成功';
   }
 
-  findAll() {
-    return `This action returns all auth`;
+  async findAll() {
+    return {
+      data: await this.user.find()
+    }
   }
 
   currentUser(request: { user: any }) {
@@ -65,8 +75,9 @@ export class AuthService {
     return `This action returns a #${id} auth`;
   }
 
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
+  async update(id: number, updateAuthDto: UpdateAuthDto) {
+    await this.user.save(updateAuthDto)
+    return await this.user.save(updateAuthDto)
   }
 
   remove(id: number) {
