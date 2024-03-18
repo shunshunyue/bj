@@ -1,10 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
-import { LoginDto } from './dto/login.dto';
+import { LoginDto, roles } from './dto/login.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/auth.entity';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { JwtService } from "@nestjs/jwt"
 import * as bcryptjs from "bcryptjs"
 
@@ -28,14 +28,22 @@ export class AuthService {
     return '新增成功';
   }
 
-  async findAll() {
+  async findAll(ops: { role: string, username: string }) {
     return {
-      data: await this.user.find()
+      data: await this.user.find({
+        where: { username: !!ops.username ? Like(`%${ops.username}%`) : undefined, role: !!ops.role ? Like(`%${ops.role}%`) : undefined }
+      })
     }
   }
 
-  currentUser(request: { user: any }) {
-    return request.user;
+  async currentUser(request: { user: any }) {
+    const findUser = await this.user.findOne({
+      where: { id: request.user.userid }
+    })
+    return {
+      roleCongfig: roles[findUser.role],
+      ...request.user
+    };
     // return `This action returns all auth`;
   }
   async login(loginDto: LoginDto) {
@@ -51,7 +59,8 @@ export class AuthService {
     if (!compareRes) return new BadRequestException("密码不正确")
     const payload = {
       name: findUser.username,
-      userid: findUser.id
+      userid: findUser.id,
+      role: findUser.role
     }
 
     return {
@@ -76,11 +85,16 @@ export class AuthService {
   }
 
   async update(id: number, updateAuthDto: UpdateAuthDto) {
-    await this.user.save(updateAuthDto)
+    if (!!updateAuthDto.password) updateAuthDto.password = bcryptjs.hashSync(updateAuthDto.password, 10)
     return await this.user.save(updateAuthDto)
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+  async remove(id: number) {
+    let userToRemove = await this.user.findOne({
+      where: { id: id }
+    });
+
+    return await this.user.remove(userToRemove);
   }
+
 }

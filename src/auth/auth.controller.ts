@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Query } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
@@ -27,9 +27,13 @@ export class AuthController {
   currentUser(@Req() request: any) {
     return this.authService.currentUser(request);
   }
+
   @Get()
-  findAll() {
-    return this.authService.findAll();
+  findAll(@Query() query: { username: string, role: string }) {
+    return this.authService.findAll({
+      username: query.username,
+      role: query.role,
+    });
   }
 
   @Get(':id')

@@ -11,6 +11,8 @@ export class User {
 
   @Column()
   password: string
-  @Column()
+  @Column({
+    default: "导师"
+  })
   role: string
 }
